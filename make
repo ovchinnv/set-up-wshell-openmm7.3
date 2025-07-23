@@ -54,7 +54,17 @@ fi
 pushd $PLUGINDIR
 # make clean # optional rebuild
 git checkout $PLUGINBRANCH
-# 3 build openmm wrapper
+#
+# 3 build fortran library :
+#
+unset MAKE_COMMAND # must compile in serial mode
+# first, compile and run with the mindist method (only in watershell v.1):
+sed -i 's/version=.*$/version=1/' watershell/version.inc # specify version in config file:
+make --silent -j1 watershell # in case we are rebuilding only the watershell
+make --silent -j1 plugin_master # parallel compile not supported
+#
+# 4 build openmm wrapper
+#
 pushd plugin_master
 pushd openmm-dynamo
 mkdir -p build
@@ -70,12 +80,6 @@ make PythonInstall # will build but fail to install as non-root
 popd
 popd
 popd
-# 4 build fortran library :
-unset MAKE_COMMAND # must compile in serial mode
-# first, compile and run with the mindist method (only in watershell v.1):
-sed -i 's/version=.*$/version=1/' watershell/version.inc # specify version in config file:
-make --silent -j1 watershell # in case we are rebuilding only the watershell
-make --silent -j1 plugin_master # parallel compile not supported
 popd
 #fi
 #exit
